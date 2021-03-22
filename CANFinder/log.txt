@@ -1,0 +1,1 @@
+Application created to help with decoding log files.

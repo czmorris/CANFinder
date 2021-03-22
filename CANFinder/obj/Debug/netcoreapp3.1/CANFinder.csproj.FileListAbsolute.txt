@@ -1,0 +1,15 @@
+C:\Users\zmorris.TII\source\repos\CANFinder\bin\Debug\netcoreapp3.1\CANFinder.exe
+C:\Users\zmorris.TII\source\repos\CANFinder\bin\Debug\netcoreapp3.1\CANFinder.deps.json
+C:\Users\zmorris.TII\source\repos\CANFinder\bin\Debug\netcoreapp3.1\CANFinder.runtimeconfig.json
+C:\Users\zmorris.TII\source\repos\CANFinder\bin\Debug\netcoreapp3.1\CANFinder.runtimeconfig.dev.json
+C:\Users\zmorris.TII\source\repos\CANFinder\bin\Debug\netcoreapp3.1\CANFinder.dll
+C:\Users\zmorris.TII\source\repos\CANFinder\bin\Debug\netcoreapp3.1\CANFinder.pdb
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.csprojAssemblyReference.cache
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.Form1.resources
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.csproj.GenerateResource.cache
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.AssemblyInfoInputs.cache
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.AssemblyInfo.cs
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.csproj.CoreCompileInputs.cache
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.dll
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.pdb
+C:\Users\zmorris.TII\source\repos\CANFinder\obj\Debug\netcoreapp3.1\CANFinder.genruntimeconfig.cache
