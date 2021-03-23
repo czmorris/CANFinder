@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.listIDs = new System.Windows.Forms.ListBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.txtLogFilePath = new System.Windows.Forms.TextBox();
@@ -47,7 +48,7 @@
             this.listIDs.Location = new System.Drawing.Point(12, 101);
             this.listIDs.Name = "listIDs";
             this.listIDs.ScrollAlwaysVisible = true;
-            this.listIDs.Size = new System.Drawing.Size(137, 349);
+            this.listIDs.Size = new System.Drawing.Size(235, 529);
             this.listIDs.TabIndex = 0;
             this.listIDs.SelectedIndexChanged += new System.EventHandler(this.listIDs_SelectedIndexChanged);
             // 
@@ -95,16 +96,24 @@
             // 
             this.dgvMessages.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvMessages.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMessages.Location = new System.Drawing.Point(180, 158);
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvMessages.DefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvMessages.Location = new System.Drawing.Point(253, 101);
             this.dgvMessages.Name = "dgvMessages";
-            this.dgvMessages.Size = new System.Drawing.Size(540, 292);
+            this.dgvMessages.Size = new System.Drawing.Size(989, 529);
             this.dgvMessages.TabIndex = 4;
             this.dgvMessages.Text = "dataGridView1";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(180, 140);
+            this.label1.Location = new System.Drawing.Point(253, 83);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(196, 15);
             this.label1.TabIndex = 5;
@@ -123,7 +132,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 492);
+            this.ClientSize = new System.Drawing.Size(1254, 648);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dgvMessages);

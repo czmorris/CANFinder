@@ -28,6 +28,8 @@ namespace CANFinder
         uint[] arrInvIDs;
         int cntIndIDs;     // The count of the individual ids.
 
+        uint totalmsgcnt;
+
 
 
         public Form1()
@@ -47,6 +49,7 @@ namespace CANFinder
             arrInvIDs = new uint[100];   // At most 100 individual ids. Might have to change but should be good enough.
 
             cntIndIDs = 0;
+            totalmsgcnt = 0;
 
         }
 
@@ -64,6 +67,7 @@ namespace CANFinder
         {
             int LinePos = 0;
             cntIndIDs = 0;
+            totalmsgcnt = 0;
 
             using (TextFieldParser csvParser = new TextFieldParser(txtLogFilePath.Text))
             {
@@ -76,6 +80,9 @@ namespace CANFinder
                 while(!csvParser.EndOfData)
                 {
                     string[] fields = csvParser.ReadFields();
+
+                    totalmsgcnt++;
+
                     arrIDs[LinePos] = Convert.ToUInt32(fields[1], 16);
 
                     // Check to see if we have it already. If not add it to the individual ids list. 
@@ -180,33 +187,89 @@ namespace CANFinder
             bool d6changed = false;
             bool d7changed = false;
 
+            int idcnts = 0;
+            int columncnt = 0;
+
             string[] arrCol = new string[10];
 
             // Populate the datagridview. 
             dgvMessages.Rows.Clear();
             dgvMessages.ColumnCount = 10;
 
-            dgvMessages.Rows.Add("ID", "LEN", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7");
+            //dgvMessages.Rows.Add("ID", "LEN", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7");
+
+            foreach (DataGridViewColumn column in dgvMessages.Columns)
+            {
+
+
+                switch(columncnt)
+                {
+                    case 0: // ID
+                        column.HeaderText = "ID";
+                        break;
+                    case 1: // length
+                        column.HeaderText = "LEN";
+                        break;
+                    case 2: // d0
+                        column.HeaderText = "D0";
+                        break;
+                    case 3: // d1
+                        column.HeaderText = "D1";
+                        break;
+                    case 4: // d2
+                        column.HeaderText = "D2";
+                        break;
+                    case 5: // d3
+                        column.HeaderText = "D3";
+                        break;
+                    case 6: // d4
+                        column.HeaderText = "D4";
+                        break;
+                    case 7: // d5
+                        column.HeaderText = "D5";
+                        break;
+                    case 8: // d6
+                        column.HeaderText = "D6";
+                        break;
+                    case 9: // d7
+                        column.HeaderText = "D7";
+                        break;
+
+                }
+
+                columncnt++;
+            }
 
             // For all available messages.
-            for(int i = 0; i < arrIDs.Length; i++)
+            for (int i = 0; i < totalmsgcnt; i++)
             { 
                 // Does this id match the one we are working with?
                 if(id == arrIDs[i])
                 {
+                    idcnts++;
+
                     rowid = id;
                     len   = arrLENs[i];
 
                     // Did the data byte change at all?
-                    if ((i > 0) && (d0 != arrD0[i])) { d0changed = true; }
-                    if ((i > 0) && (d1 != arrD1[i])) { d1changed = true; }
-                    if ((i > 0) && (d2 != arrD2[i])) { d2changed = true; }
-                    if ((i > 0) && (d3 != arrD3[i])) { d3changed = true; }
-                    if ((i > 0) && (d4 != arrD4[i])) { d4changed = true; }
-                    if ((i > 0) && (d5 != arrD5[i])) { d5changed = true; }
-                    if ((i > 0) && (d6 != arrD6[i])) { d6changed = true; }
-                    if ((i > 0) && (d7 != arrD7[i])) { d7changed = true; }
+                    if ((idcnts > 1) && (d0 != arrD0[i])) 
+                    { d0changed = true; }
+                    if ((idcnts > 1) && (d1 != arrD1[i])) 
+                    { d1changed = true; }
+                    if ((idcnts > 1) && (d2 != arrD2[i])) 
+                    { d2changed = true; }
+                    if ((idcnts > 1) && (d3 != arrD3[i])) 
+                    { d3changed = true; }
+                    if ((idcnts > 1) && (d4 != arrD4[i])) 
+                    { d4changed = true; }
+                    if ((idcnts > 1) && (d5 != arrD5[i])) 
+                    { d5changed = true; }
+                    if ((idcnts > 1) && (d6 != arrD6[i])) 
+                    { d6changed = true; }
+                    if ((idcnts > 1) && (d7 != arrD7[i])) 
+                    { d7changed = true; }
 
+                    // Update the locals with values from the primary array.
                     d0    = arrD0[i];
                     if (len >= 2) { d1 = arrD1[i]; }
                     if (len >= 3) { d2 = arrD2[i]; }
@@ -216,20 +279,20 @@ namespace CANFinder
                     if (len >= 7) { d6 = arrD6[i]; }
                     if (len >= 8) { d7 = arrD7[i]; }
 
-
-                    // Note: It might be have blanks where length does not extend for a message... 
+                    // Format the value for each column. 
                     arrCol[0] = String.Format("0x{0:X8}", rowid);
                     arrCol[1] = String.Format("{0}", len);
-                    arrCol[2] = String.Format("0x{0:X2}", d0);
-                    arrCol[3] = String.Format("0x{0:X2}", d1);
-                    arrCol[4] = String.Format("0x{0:X2}", d2);
-                    arrCol[5] = String.Format("0x{0:X2}", d3);
-                    arrCol[6] = String.Format("0x{0:X2}", d4);
-                    arrCol[7] = String.Format("0x{0:X2}", d5);
-                    arrCol[8] = String.Format("0x{0:X2}", d6);
-                    arrCol[9] = String.Format("0x{0:X2}", d7);
+                    arrCol[2] = String.Format("0x{0:X2}[{1}]", d0, d0);
+                    arrCol[3] = String.Format("0x{0:X2}[{1}]", d1, d1);
+                    arrCol[4] = String.Format("0x{0:X2}[{1}]", d2, d2);
+                    arrCol[5] = String.Format("0x{0:X2}[{1}]", d3, d3);
+                    arrCol[6] = String.Format("0x{0:X2}[{1}]", d4, d4);
+                    arrCol[7] = String.Format("0x{0:X2}[{1}]", d5, d5);
+                    arrCol[8] = String.Format("0x{0:X2}[{1}]", d6, d6);
+                    arrCol[9] = String.Format("0x{0:X2}[{1}]", d7, d7);
 
                     dgvMessages.Rows.Add(arrCol);
+                    dgvMessages.Rows[idcnts-1].HeaderCell.Value = (idcnts).ToString(); // Start from 1 not 0
                 }
             }
 
