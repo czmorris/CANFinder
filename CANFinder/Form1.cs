@@ -279,17 +279,35 @@ namespace CANFinder
                     if (len >= 7) { d6 = arrD6[i]; }
                     if (len >= 8) { d7 = arrD7[i]; }
 
-                    // Format the value for each column. 
-                    arrCol[0] = String.Format("0x{0:X8}", rowid);
-                    arrCol[1] = String.Format("{0}", len);
-                    arrCol[2] = String.Format("0x{0:X2}[{1}]", d0, d0);
-                    arrCol[3] = String.Format("0x{0:X2}[{1}]", d1, d1);
-                    arrCol[4] = String.Format("0x{0:X2}[{1}]", d2, d2);
-                    arrCol[5] = String.Format("0x{0:X2}[{1}]", d3, d3);
-                    arrCol[6] = String.Format("0x{0:X2}[{1}]", d4, d4);
-                    arrCol[7] = String.Format("0x{0:X2}[{1}]", d5, d5);
-                    arrCol[8] = String.Format("0x{0:X2}[{1}]", d6, d6);
-                    arrCol[9] = String.Format("0x{0:X2}[{1}]", d7, d7);
+                    if(chkShowHex.Checked)
+                    {
+                        // Format the value for each column. Include hex.
+                        arrCol[0] = String.Format("0x{0:X8}", rowid);
+                        arrCol[1] = String.Format("{0}", len);
+                        arrCol[2] = String.Format("0x{0:X2}[{1}]", d0, d0);
+                        arrCol[3] = String.Format("0x{0:X2}[{1}]", d1, d1);
+                        arrCol[4] = String.Format("0x{0:X2}[{1}]", d2, d2);
+                        arrCol[5] = String.Format("0x{0:X2}[{1}]", d3, d3);
+                        arrCol[6] = String.Format("0x{0:X2}[{1}]", d4, d4);
+                        arrCol[7] = String.Format("0x{0:X2}[{1}]", d5, d5);
+                        arrCol[8] = String.Format("0x{0:X2}[{1}]", d6, d6);
+                        arrCol[9] = String.Format("0x{0:X2}[{1}]", d7, d7);
+                    }
+                    else
+                    {
+                        // Format the value for each column. Decimal only.
+                        arrCol[0] = String.Format("{0}", rowid);
+                        arrCol[1] = String.Format("{0}", len);
+                        arrCol[2] = String.Format("{0}", d0);
+                        arrCol[3] = String.Format("{0}", d1);
+                        arrCol[4] = String.Format("{0}", d2);
+                        arrCol[5] = String.Format("{0}", d3);
+                        arrCol[6] = String.Format("{0}", d4);
+                        arrCol[7] = String.Format("{0}", d5);
+                        arrCol[8] = String.Format("{0}", d6);
+                        arrCol[9] = String.Format("{0}", d7);
+                    }
+
 
                     dgvMessages.Rows.Add(arrCol);
                     dgvMessages.Rows[idcnts-1].HeaderCell.Value = (idcnts).ToString(); // Start from 1 not 0
@@ -321,6 +339,11 @@ namespace CANFinder
             if (d7changed) { dgvMessages.Columns[9].DefaultCellStyle.BackColor = Color.Coral; }
             else { dgvMessages.Columns[9].DefaultCellStyle.BackColor = Color.White; }
 
+        }
+
+        private void chkShowHex_CheckedChanged(object sender, EventArgs e)
+        {
+            FillDgvWithId(arrInvIDs[listIDs.SelectedIndex]);
         }
     }
 }

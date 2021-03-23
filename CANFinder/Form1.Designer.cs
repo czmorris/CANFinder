@@ -38,6 +38,7 @@
             this.dgvMessages = new System.Windows.Forms.DataGridView();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.chkShowHex = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMessages)).BeginInit();
             this.SuspendLayout();
             // 
@@ -128,11 +129,23 @@
             this.label2.TabIndex = 6;
             this.label2.Text = "IDs Found in Log";
             // 
+            // chkShowHex
+            // 
+            this.chkShowHex.AutoSize = true;
+            this.chkShowHex.Location = new System.Drawing.Point(509, 71);
+            this.chkShowHex.Name = "chkShowHex";
+            this.chkShowHex.Size = new System.Drawing.Size(115, 19);
+            this.chkShowHex.TabIndex = 7;
+            this.chkShowHex.Text = "Show Hex Values";
+            this.chkShowHex.UseVisualStyleBackColor = true;
+            this.chkShowHex.CheckedChanged += new System.EventHandler(this.chkShowHex_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1254, 648);
+            this.Controls.Add(this.chkShowHex);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dgvMessages);
@@ -161,6 +174,7 @@
         private System.Windows.Forms.DataGridView dgvMessages;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox chkShowHex;
     }
 }
 
