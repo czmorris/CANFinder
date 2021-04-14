@@ -8,12 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
+using System.IO;
 
 namespace CANFinder
 {
     public partial class Form1 : Form
     {
-
+        float[] seconds;
         uint[] arrIDs;
         byte[] arrLENs;
         byte[] arrD0;
@@ -24,6 +25,7 @@ namespace CANFinder
         byte[] arrD5;
         byte[] arrD6;
         byte[] arrD7;
+        
 
         uint[] arrInvIDs;
         int cntIndIDs;     // The count of the individual ids.
@@ -46,6 +48,7 @@ namespace CANFinder
             arrD5   = new byte[100000];
             arrD6   = new byte[100000];
             arrD7   = new byte[100000];
+            seconds = new float[100000];  // all the memory be gone... 
             arrInvIDs = new uint[100];   // At most 100 individual ids. Might have to change but should be good enough.
 
             cntIndIDs = 0;
@@ -68,6 +71,8 @@ namespace CANFinder
             int LinePos = 0;
             cntIndIDs = 0;
             totalmsgcnt = 0;
+            float InitialSeconds = 0.0F;
+            ulong tempmicrosec = 0;
 
             using (TextFieldParser csvParser = new TextFieldParser(txtLogFilePath.Text))
             {
@@ -82,6 +87,17 @@ namespace CANFinder
                     string[] fields = csvParser.ReadFields();
 
                     totalmsgcnt++;
+
+                    tempmicrosec = Convert.ToUInt64(fields[0]);
+
+                    // Grab the initial timestamp
+                    if (LinePos == 0)
+                    {
+                        InitialSeconds = (float)(tempmicrosec / 1000000.0);
+                    }
+
+                    // Deduct the initial timestamp and store.
+                    seconds[LinePos] = (float)((tempmicrosec / 1000000.0) - InitialSeconds);
 
                     arrIDs[LinePos] = Convert.ToUInt32(fields[1], 16);
 
@@ -345,5 +361,104 @@ namespace CANFinder
         {
             FillDgvWithId(arrInvIDs[listIDs.SelectedIndex]);
         }
+
+        // 
+        private void btnSaveParsed_Click(object sender, EventArgs e)
+        {
+            DialogResult drslt;
+
+            drslt = dlgSaveParse.ShowDialog();
+
+            if(drslt == DialogResult.OK)
+            {
+                SaveParsed(dlgSaveParse.FileName);
+            }
+
+        }
+
+        void SaveParsed(string path)
+        {
+            float timestamp;         // In seconds
+            float Soc = 0.0F;        // %
+            float Amps = 0.0F;       // in Ampheres.
+            int   GearMode = 0;      // Enum
+            string GMString = "";
+            float Odo = 0.0F;        // in miles
+            float Trip = 0.0F;       // in miles
+            float Speed = 0.0F;      // in mph
+            float CtrlTemp = 0.0F;   // Controller temp in C
+            int   SideStand = 0;     // Side Stand Status
+
+            string line;
+
+            StreamWriter file = new StreamWriter(path);
+
+            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0)";
+            file.WriteLine(line);  // Write the header line.
+
+            // For every message. 
+            for(int i = 0; i < totalmsgcnt; i++)
+            {
+                timestamp = seconds[i]; 
+
+                // Update any values that need it.
+                switch(arrIDs[i])
+                {
+                    case 0x19: // BMS (Soc/Amps)
+                        Soc = arrD1[i];
+                        Amps = (float)((arrD6[i] + (255 * arrD7[i])) / 100.0);
+                        break;
+                    case 0xA0:  // GearMode
+                        GearMode = arrD0[i];
+
+                        switch(GearMode)
+                        {
+                            case 0x01: // ECO
+                                GMString = "ECO";
+                                break;
+                            case 0x02: // POWER
+                                GMString = "POWER";
+                                break;
+                            case 0x03: // REV
+                                GMString = "REVERSE";
+                                break;
+                            case 0x17: // PARK
+                                GMString = "PARK";
+                                break;
+                        }
+
+                        break;
+                    case 0x2D0: // Odo/Trip
+                        Odo = (float)(((255.0 * arrD3[i]) + arrD2[i]) / 1.609);             // Odo in kph converted to miles.
+                        Trip = (float)((((255.0 * arrD6[i]) + arrD5[i]) / 10.0 ) / 1.609);  // trip in kph converted to miles.
+                        break;
+                    case 0x101: // Speed/SS
+                        Speed = (float)((arrD1[i] * 1.275) / 1.609);
+                        SideStand = (arrD5[i] & 0x80) >> 7;
+                        CtrlTemp = (float)(arrD6[i] - 40);
+                        break;
+                }
+
+                // now build the line to be written to the file
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}",
+                    timestamp,
+                    Soc,
+                    Amps,
+                    GMString,
+                    Odo,
+                    Trip,
+                    Speed,
+                    CtrlTemp,
+                    SideStand);
+
+                file.WriteLine(line);  // Write this row
+
+            }
+
+            file.Close();
+            MessageBox.Show("Done!");  // Note.. Should change to check for errors.
+        }
+
+
     }
 }

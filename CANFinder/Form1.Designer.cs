@@ -39,6 +39,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.chkShowHex = new System.Windows.Forms.CheckBox();
+            this.btnSaveParsed = new System.Windows.Forms.Button();
+            this.dlgSaveParse = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMessages)).BeginInit();
             this.SuspendLayout();
             // 
@@ -140,11 +142,22 @@
             this.chkShowHex.UseVisualStyleBackColor = true;
             this.chkShowHex.CheckedChanged += new System.EventHandler(this.chkShowHex_CheckedChanged);
             // 
+            // btnSaveParsed
+            // 
+            this.btnSaveParsed.Location = new System.Drawing.Point(704, 35);
+            this.btnSaveParsed.Name = "btnSaveParsed";
+            this.btnSaveParsed.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveParsed.TabIndex = 8;
+            this.btnSaveParsed.Text = "Parse Log";
+            this.btnSaveParsed.UseVisualStyleBackColor = true;
+            this.btnSaveParsed.Click += new System.EventHandler(this.btnSaveParsed_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1254, 648);
+            this.Controls.Add(this.btnSaveParsed);
             this.Controls.Add(this.chkShowHex);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -175,6 +188,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox chkShowHex;
+        private System.Windows.Forms.Button btnSaveParsed;
+        private System.Windows.Forms.SaveFileDialog dlgSaveParse;
     }
 }
 
