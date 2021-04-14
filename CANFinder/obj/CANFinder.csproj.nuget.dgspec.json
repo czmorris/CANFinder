@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\zmorris.TII\\Desktop\\CANFinder\\CANFinder\\CANFinder.csproj": {}
+    "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj": {}
   },
   "projects": {
-    "C:\\Users\\zmorris.TII\\Desktop\\CANFinder\\CANFinder\\CANFinder.csproj": {
+    "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\zmorris.TII\\Desktop\\CANFinder\\CANFinder\\CANFinder.csproj",
+        "projectUniqueName": "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj",
         "projectName": "CANFinder",
-        "projectPath": "C:\\Users\\zmorris.TII\\Desktop\\CANFinder\\CANFinder\\CANFinder.csproj",
+        "projectPath": "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj",
         "packagesPath": "C:\\Users\\zmorris.TII\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\zmorris.TII\\Desktop\\CANFinder\\CANFinder\\obj\\",
+        "outputPath": "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\"

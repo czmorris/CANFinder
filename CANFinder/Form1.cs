@@ -444,7 +444,7 @@ namespace CANFinder
                     timestamp,
                     Soc,
                     Amps,
-                    GMString,
+                    GearMode,
                     Odo,
                     Trip,
                     Speed,
