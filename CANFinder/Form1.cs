@@ -389,11 +389,18 @@ namespace CANFinder
             float CtrlTemp = 0.0F;   // Controller temp in C
             int   SideStand = 0;     // Side Stand Status
 
+            float LastSocChange = 0.0F;
+            float TripAtSocChange = 0.0F;
+            float PercentPerMile = 0.0F;
+            float SumForAvgPPM = 0.0F;
+            int CountAvgPPM = 0;
+            float AvgPPM = 0.0F;
+
             string line;
 
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0)";
+            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM";
             file.WriteLine(line);  // Write the header line.
 
             // For every message. 
@@ -407,6 +414,27 @@ namespace CANFinder
                     case 0x19: // BMS (Soc/Amps)
                         Soc = arrD1[i];
                         Amps = (float)((arrD6[i] + (255 * arrD7[i])) / 100.0);
+
+                        // Always update on the first to get started...
+                        if (i == 0)
+                        {
+                            LastSocChange = Soc;
+                            TripAtSocChange = Trip;
+                        }
+                        else if ((i > 0) && (Soc != LastSocChange))
+                        {
+                            PercentPerMile = ((LastSocChange - Soc) / (Trip - TripAtSocChange));
+                            LastSocChange = Soc;
+                            TripAtSocChange = Trip;
+
+                            SumForAvgPPM += PercentPerMile;
+                            CountAvgPPM++;
+
+                            AvgPPM = (SumForAvgPPM / (float)CountAvgPPM);
+
+                        }
+
+
                         break;
                     case 0xA0:  // GearMode
                         GearMode = arrD0[i];
@@ -440,7 +468,7 @@ namespace CANFinder
                 }
 
                 // now build the line to be written to the file
-                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8}",
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
                     timestamp,
                     Soc,
                     Amps,
@@ -449,7 +477,9 @@ namespace CANFinder
                     Trip,
                     Speed,
                     CtrlTemp,
-                    SideStand);
+                    SideStand,
+                    PercentPerMile,
+                    AvgPPM);
 
                 file.WriteLine(line);  // Write this row
 
