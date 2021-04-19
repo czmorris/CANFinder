@@ -399,6 +399,8 @@ namespace CANFinder
             float BatteryVoltage = 0.0F;  // This is a test until proven...
             float BatteryWatts = 0.0F;    // Test until proven. May not include items powered by DC-DC.
 
+            float WHPERMI = 0.0F;         // Watt/Hours Per Mile estimate.
+
             string line;
 
             bool FirstSocIn = false;
@@ -492,9 +494,14 @@ namespace CANFinder
                 // Volts and Amps provided in different CAN messages. So calculated outside of switch.
                 BatteryWatts = (BatteryVoltage * Amps);
 
+                if((Speed > 0) && (BatteryVoltage > 0))
+                {
+                    WHPERMI = (BatteryVoltage * (Amps / Speed));
+                }
+
 
                 // now build the line to be written to the file
-                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}",
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}",
                     timestamp,
                     Soc,
                     Amps,
@@ -507,7 +514,8 @@ namespace CANFinder
                     PercentPerMile,
                     AvgPPM,
                     BatteryVoltage,
-                    BatteryWatts);
+                    BatteryWatts,
+                    WHPERMI);
 
                 file.WriteLine(line);  // Write this row
 
