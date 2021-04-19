@@ -396,11 +396,16 @@ namespace CANFinder
             int CountAvgPPM = 0;
             float AvgPPM = 0.0F;
 
+            float BatteryVoltage = 0.0F;  // This is a test until proven...
+            float BatteryWatts = 0.0F;    // Test until proven. May not include items powered by DC-DC.
+
             string line;
+
+            bool FirstSocIn = false;
 
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM";
+            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts";
             file.WriteLine(line);  // Write the header line.
 
             // For every message. 
@@ -416,24 +421,46 @@ namespace CANFinder
                         Amps = (float)((arrD6[i] + (255 * arrD7[i])) / 100.0);
 
                         // Always update on the first to get started...
-                        if (i == 0)
+                        if ((!FirstSocIn) && (Soc > 0))
                         {
                             LastSocChange = Soc;
                             TripAtSocChange = Trip;
+                            FirstSocIn = true;
                         }
-                        else if ((i > 0) && (Soc != LastSocChange))
+                        else if ((FirstSocIn) && (Soc != LastSocChange))
                         {
-                            PercentPerMile = ((LastSocChange - Soc) / (Trip - TripAtSocChange));
-                            LastSocChange = Soc;
-                            TripAtSocChange = Trip;
+                            // Avoid divide by zero. Must have enough valid trip data.
+                            if ((Trip - TripAtSocChange > 0) && (Soc != LastSocChange) && (Soc > 0))
+                            {
+                                PercentPerMile = ((LastSocChange - Soc) / (Trip - TripAtSocChange));
+                                LastSocChange = Soc;
+                                TripAtSocChange = Trip;
 
-                            SumForAvgPPM += PercentPerMile;
-                            CountAvgPPM++;
+                                SumForAvgPPM += PercentPerMile;
+                                CountAvgPPM++;
 
-                            AvgPPM = (SumForAvgPPM / (float)CountAvgPPM);
+
+                                // Avoid divide by zero. Don't try to average without any samples
+                                if(CountAvgPPM > 0)
+                                {
+                                    AvgPPM = (SumForAvgPPM / (float)CountAvgPPM);
+                                }
+                                else
+                                {
+                                    AvgPPM = 0;
+                                }
+                            }
+
+
+
 
                         }
 
+
+                        break;
+                    case 0x619:
+
+                        BatteryVoltage = (float)( ((arrD3[i] * 255) + arrD2[i]) / 100.0 );
 
                         break;
                     case 0xA0:  // GearMode
@@ -467,8 +494,12 @@ namespace CANFinder
                         break;
                 }
 
+                // Volts and Amps provided in different CAN messages. So calculated outside of switch.
+                BatteryWatts = (BatteryVoltage * Amps);
+
+
                 // now build the line to be written to the file
-                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}",
                     timestamp,
                     Soc,
                     Amps,
@@ -479,7 +510,9 @@ namespace CANFinder
                     CtrlTemp,
                     SideStand,
                     PercentPerMile,
-                    AvgPPM);
+                    AvgPPM,
+                    BatteryVoltage,
+                    BatteryWatts);
 
                 file.WriteLine(line);  // Write this row
 
