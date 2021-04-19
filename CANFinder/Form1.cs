@@ -450,12 +450,7 @@ namespace CANFinder
                                     AvgPPM = 0;
                                 }
                             }
-
-
-
-
                         }
-
 
                         break;
                     case 0x619:
