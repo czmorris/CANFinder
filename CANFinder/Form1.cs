@@ -385,7 +385,12 @@ namespace CANFinder
             string GMString = "";
             float Odo = 0.0F;        // in miles
             float Trip = 0.0F;       // in miles
+            
             float Speed = 0.0F;      // in mph
+            ulong SpdAvgCnts = 0;
+            float AvgSpd = 0.0F;     // The average speed over the entire log.
+            float AvgSpdSum = 0.0F;
+
             float CtrlTemp = 0.0F;   // Controller temp in C
             int   SideStand = 0;     // Side Stand Status
 
@@ -400,6 +405,9 @@ namespace CANFinder
             float BatteryWatts = 0.0F;    // Test until proven. May not include items powered by DC-DC.
 
             float WHPERMI = 0.0F;         // Watt/Hours Per Mile estimate.
+            float AVGWHPERMI = 0.0F;      // Average WH/MI when speed is not zero.
+            float WHPERMISUM = 0.0F;      // sum for averaging wh/mi when speed not zero.
+            ulong whmiavgcnt = 0; ;       // Counts used for averaging Wh/mi
 
             string line;
 
@@ -407,7 +415,7 @@ namespace CANFinder
 
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts";
+            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG";
             file.WriteLine(line);  // Write the header line.
 
             // For every message. 
@@ -486,6 +494,18 @@ namespace CANFinder
                         break;
                     case 0x101: // Speed/SS
                         Speed = (float)((arrD1[i] * 1.275) / 1.609);
+
+                        // Only when moving... 
+                        if(Speed >= 1)
+                        {
+                            SpdAvgCnts++;
+                            AvgSpdSum += Speed;
+
+                            AvgSpd = (AvgSpdSum / SpdAvgCnts);
+                            
+                        }
+
+
                         SideStand = (arrD5[i] & 0x80) >> 7;
                         CtrlTemp = (float)(arrD6[i] - 40);
                         break;
@@ -494,14 +514,20 @@ namespace CANFinder
                 // Volts and Amps provided in different CAN messages. So calculated outside of switch.
                 BatteryWatts = (BatteryVoltage * Amps);
 
-                if((Speed > 0) && (BatteryVoltage > 0))
+                if((Speed > 1) && (BatteryVoltage > 0))
                 {
                     WHPERMI = (BatteryVoltage * (Amps / Speed));
+
+                    // Sum and average (Only when speed is greater than 1)
+                    WHPERMISUM += WHPERMI;
+                    whmiavgcnt++;
+                    AVGWHPERMI = (WHPERMISUM / whmiavgcnt);
+
                 }
 
 
                 // now build the line to be written to the file
-                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}",
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
                     timestamp,
                     Soc,
                     Amps,
@@ -515,7 +541,9 @@ namespace CANFinder
                     AvgPPM,
                     BatteryVoltage,
                     BatteryWatts,
-                    WHPERMI);
+                    WHPERMI,
+                    AVGWHPERMI,
+                    AvgSpd);
 
                 file.WriteLine(line);  // Write this row
 
