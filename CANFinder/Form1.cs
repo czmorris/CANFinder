@@ -409,13 +409,22 @@ namespace CANFinder
             float WHPERMISUM = 0.0F;      // sum for averaging wh/mi when speed not zero.
             ulong whmiavgcnt = 0; ;       // Counts used for averaging Wh/mi
 
+            int TestSixSeven = 0;
+
+            int Test101D0 = 0;
+            int Test101D2 = 0;
+
+            float Test3bAD0D1 = 0.0F;
+
             string line;
 
             bool FirstSocIn = false;
 
+
+
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG";
+            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG, 0x67, 0x101_D2, Test3bAD0D1";
             file.WriteLine(line);  // Write the header line.
 
             // For every message. 
@@ -505,9 +514,21 @@ namespace CANFinder
                             
                         }
 
+                        Test101D0 = arrD0[i];
+                        Test101D2 = arrD2[i];
 
                         SideStand = (arrD5[i] & 0x80) >> 7;
                         CtrlTemp = (float)(arrD6[i] - 40);
+                        break;
+                    case 0x67:
+
+                        TestSixSeven = arrD0[i];  // Not sure what this is yet. included for testing.
+
+                        break;
+                    case 0x3BA:
+
+                        Test3bAD0D1 = (float)(((arrD1[i] * 255) + arrD0[i]) / 10.0);
+
                         break;
                 }
 
@@ -527,7 +548,7 @@ namespace CANFinder
 
 
                 // now build the line to be written to the file
-                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}",
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}",
                     timestamp,
                     Soc,
                     Amps,
@@ -543,7 +564,10 @@ namespace CANFinder
                     BatteryWatts,
                     WHPERMI,
                     AVGWHPERMI,
-                    AvgSpd);
+                    AvgSpd,
+                    TestSixSeven,
+                    Test101D2,
+                    Test3bAD0D1);
 
                 file.WriteLine(line);  // Write this row
 
