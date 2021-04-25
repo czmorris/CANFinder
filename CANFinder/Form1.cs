@@ -38,17 +38,17 @@ namespace CANFinder
         {
             InitializeComponent();
 
-            arrIDs  = new uint[100000];
-            arrLENs = new byte[100000];
-            arrD0   = new byte[100000];
-            arrD1   = new byte[100000];
-            arrD2   = new byte[100000];
-            arrD3   = new byte[100000];
-            arrD4   = new byte[100000];
-            arrD5   = new byte[100000];
-            arrD6   = new byte[100000];
-            arrD7   = new byte[100000];
-            seconds = new float[100000];  // all the memory be gone... 
+            arrIDs  = new uint[1000000];
+            arrLENs = new byte[1000000];
+            arrD0   = new byte[1000000];
+            arrD1   = new byte[1000000];
+            arrD2   = new byte[1000000];
+            arrD3   = new byte[1000000];
+            arrD4   = new byte[1000000];
+            arrD5   = new byte[1000000];
+            arrD6   = new byte[1000000];
+            arrD7   = new byte[1000000];
+            seconds = new float[1000000];  // all the memory be gone... 
             arrInvIDs = new uint[100];   // At most 100 individual ids. Might have to change but should be good enough.
 
             cntIndIDs = 0;
@@ -73,6 +73,7 @@ namespace CANFinder
             totalmsgcnt = 0;
             float InitialSeconds = 0.0F;
             ulong tempmicrosec = 0;
+            long tempmicrolong = 0;
 
             using (TextFieldParser csvParser = new TextFieldParser(txtLogFilePath.Text))
             {
@@ -88,7 +89,9 @@ namespace CANFinder
 
                     totalmsgcnt++;
 
-                    tempmicrosec = Convert.ToUInt64(fields[0]);
+                    tempmicrolong = Convert.ToInt64(fields[0]);
+                    tempmicrosec = (ulong)tempmicrolong;
+
 
                     // Grab the initial timestamp
                     if (LinePos == 0)
