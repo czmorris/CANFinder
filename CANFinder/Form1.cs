@@ -410,11 +410,14 @@ namespace CANFinder
             ulong whmiavgcnt = 0; ;       // Counts used for averaging Wh/mi
 
             int TestSixSeven = 0;
-
             int Test101D0 = 0;
             int Test101D2 = 0;
-
+            int Test89D0 = 0;
             float Test3bAD0D1 = 0.0F;
+
+            float UnfiltAmps = 0.0F;
+
+            float MphHiRes = 0.0F;
 
             string line;
 
@@ -424,11 +427,12 @@ namespace CANFinder
 
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), Amps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), SideStand (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG, 0x67, 0x101_D2, Test3bAD0D1";
+            line = "Seconds, SoC(%), FiltAmps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), BrakeSS (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG, Ready?, 0x101_D2, FullSoc?, 0x89_D0, UNFAMPS, 0x101_D0, HiResSpd(MPH) ";
             file.WriteLine(line);  // Write the header line.
 
+
             // For every message. 
-            for(int i = 0; i < totalmsgcnt; i++)
+            for (int i = 0; i < totalmsgcnt; i++)
             {
                 timestamp = seconds[i]; 
 
@@ -498,21 +502,24 @@ namespace CANFinder
 
                         break;
                     case 0x2D0: // Odo/Trip
+
+                        MphHiRes = (float)(((255.0 * arrD1[i]) + arrD0[i]) / 29.3);               // Note: Divide by ~29.3 to get mph
+
                         Odo = (float)(((255.0 * arrD3[i]) + arrD2[i]) / 1.609);             // Odo in kph converted to miles.
                         Trip = (float)((((255.0 * arrD6[i]) + arrD5[i]) / 10.0 ) / 1.609);  // trip in kph converted to miles.
-                        break;
-                    case 0x101: // Speed/SS
-                        Speed = (float)((arrD1[i] * 1.275) / 1.609);
 
                         // Only when moving... 
-                        if(Speed >= 1)
+                        if(MphHiRes > 0)
                         {
                             SpdAvgCnts++;
-                            AvgSpdSum += Speed;
+                            AvgSpdSum += MphHiRes;
 
-                            AvgSpd = (AvgSpdSum / SpdAvgCnts);
-                            
+                            AvgSpd = (AvgSpdSum / SpdAvgCnts);                          
                         }
+
+                        break;
+                    case 0x101: // Speed/SS
+                        Speed = (float)((arrD1[i] * 1.275) / 1.609);  // Seems to be slower update / lower resolution.
 
                         Test101D0 = arrD0[i];
                         Test101D2 = arrD2[i];
@@ -525,19 +532,31 @@ namespace CANFinder
                         TestSixSeven = arrD0[i];  // Not sure what this is yet. included for testing.
 
                         break;
-                    case 0x3BA:
+                    case 0x3BA:  // Another SoC%? Full battery capacity maybe?
 
                         Test3bAD0D1 = (float)(((arrD1[i] * 255) + arrD0[i]) / 10.0);
+
+                        break;
+                    case 0x89:
+
+                        Test89D0 = arrD0[i];  // Investigative. Not idea what it is. but it changed in log.
+
+                        break;
+                    case 0x98:
+
+                        UnfiltAmps = (float)(((arrD4[i] * 255) + arrD3[i]) / 10.0 );
 
                         break;
                 }
 
                 // Volts and Amps provided in different CAN messages. So calculated outside of switch.
-                BatteryWatts = (BatteryVoltage * Amps);
+                BatteryWatts = (BatteryVoltage * UnfiltAmps);
 
-                if((Speed > 1) && (BatteryVoltage > 0))
+                if((MphHiRes > 0) && (BatteryVoltage > 0))
                 {
-                    WHPERMI = (BatteryVoltage * (Amps / Speed));
+                    // For now using 74 rather than measured battery voltage...
+                    // Settings in BMS are possibly.... 74v and 26A
+                    WHPERMI = (74.0F * (UnfiltAmps / MphHiRes));
 
                     // Sum and average (Only when speed is greater than 1)
                     WHPERMISUM += WHPERMI;
@@ -547,8 +566,9 @@ namespace CANFinder
                 }
 
 
+
                 // now build the line to be written to the file
-                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}",
+                line = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22}",
                     timestamp,
                     Soc,
                     Amps,
@@ -565,9 +585,14 @@ namespace CANFinder
                     WHPERMI,
                     AVGWHPERMI,
                     AvgSpd,
-                    TestSixSeven,
-                    Test101D2,
-                    Test3bAD0D1);
+                    TestSixSeven,  // Note: Is this the "Ready" Signal?
+                    Test101D2,     
+                    Test3bAD0D1,   // Note: Possibly SoC of entire battery?
+                    Test89D0,      // Note: Changed from 12 to 9 in a test log on rapid decel from 40+ mph. Happened once.
+                    UnfiltAmps,    // Note: Possibly unfiltered amps. (Instant amps)
+                    Test101D0,
+                    MphHiRes);     // Mph (higher res option)
+                
 
                 file.WriteLine(line);  // Write this row
 
