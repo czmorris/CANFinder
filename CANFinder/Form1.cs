@@ -72,8 +72,8 @@ namespace CANFinder
             cntIndIDs = 0;
             totalmsgcnt = 0;
             float InitialSeconds = 0.0F;
-            ulong tempmicrosec = 0;
-            long tempmicrolong = 0;
+            uint tempmicrosec = 0;
+            int tempmicrolong = 0;
 
             using (TextFieldParser csvParser = new TextFieldParser(txtLogFilePath.Text))
             {
@@ -89,8 +89,8 @@ namespace CANFinder
 
                     totalmsgcnt++;
 
-                    tempmicrolong = Convert.ToInt64(fields[0]);
-                    tempmicrosec = (ulong)tempmicrolong;
+                    tempmicrolong = Convert.ToInt32(fields[0]);
+                    tempmicrosec = (uint)tempmicrolong;
 
 
                     // Grab the initial timestamp
