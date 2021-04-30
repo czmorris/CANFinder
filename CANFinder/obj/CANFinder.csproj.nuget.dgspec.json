@@ -1,25 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj": {}
+    "C:\\Users\\Zach\\Documents\\GitHub\\CANFinder\\CANFinder\\CANFinder.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj": {
+    "C:\\Users\\Zach\\Documents\\GitHub\\CANFinder\\CANFinder\\CANFinder.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj",
+        "projectUniqueName": "C:\\Users\\Zach\\Documents\\GitHub\\CANFinder\\CANFinder\\CANFinder.csproj",
         "projectName": "CANFinder",
-        "projectPath": "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\CANFinder.csproj",
-        "packagesPath": "C:\\Users\\zmorris.TII\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\GENETIX\\APPS\\Ajax\\CANFinder\\CANFinder\\obj\\",
+        "projectPath": "C:\\Users\\Zach\\Documents\\GitHub\\CANFinder\\CANFinder\\CANFinder.csproj",
+        "packagesPath": "C:\\Users\\Zach\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Zach\\Documents\\GitHub\\CANFinder\\CANFinder\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\"
-        ],
         "configFilePaths": [
-          "C:\\Users\\zmorris.TII\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\Zach\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
@@ -30,6 +26,7 @@
         },
         "frameworks": {
           "netcoreapp3.1": {
+            "targetAlias": "netcoreapp3.1",
             "projectReferences": {}
           }
         },
@@ -41,6 +38,7 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
           "imports": [
             "net461",
             "net462",
@@ -59,7 +57,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.301\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     }

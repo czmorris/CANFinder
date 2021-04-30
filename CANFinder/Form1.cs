@@ -412,6 +412,10 @@ namespace CANFinder
             float WHPERMISUM = 0.0F;      // sum for averaging wh/mi when speed not zero.
             ulong whmiavgcnt = 0; ;       // Counts used for averaging Wh/mi
 
+            float StartTrip = 0.0F;
+            float StartSoC = 0.0F;
+            float DistSoc = 0.0F;
+
             int TestSixSeven = 0;
             int Test101D0 = 0;
             int Test101D2 = 0;
@@ -425,12 +429,13 @@ namespace CANFinder
             string line;
 
             bool FirstSocIn = false;
+            bool FirstTripIn = false;
 
 
 
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), FiltAmps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), BrakeSS (1/0), %SoCPPM, AvgPPM, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG, Ready?, 0x101_D2, FullSoc?, 0x89_D0, UNFAMPS, 0x101_D0, HiResSpd(MPH) ";
+            line = "Seconds, SoC(%), FiltAmps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), BrakeSS (1/0), unused, SocPerMile, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG, Ready?, 0x101_D2, FullSoc?, 0x89_D0, UNFAMPS, 0x101_D0, HiResSpd(MPH) ";
             file.WriteLine(line);  // Write the header line.
 
 
@@ -446,37 +451,7 @@ namespace CANFinder
                         Soc = arrD1[i];
                         Amps = (float)((arrD6[i] + (255 * arrD7[i])) / 100.0);
 
-                        // Always update on the first to get started...
-                        if ((!FirstSocIn) && (Soc > 0))
-                        {
-                            LastSocChange = Soc;
-                            TripAtSocChange = Trip;
-                            FirstSocIn = true;
-                        }
-                        else if ((FirstSocIn) && (Soc != LastSocChange))
-                        {
-                            // Avoid divide by zero. Must have enough valid trip data.
-                            if ((Trip - TripAtSocChange > 0) && (Soc != LastSocChange) && (Soc > 0))
-                            {
-                                PercentPerMile = ((LastSocChange - Soc) / (Trip - TripAtSocChange));
-                                LastSocChange = Soc;
-                                TripAtSocChange = Trip;
 
-                                SumForAvgPPM += PercentPerMile;
-                                CountAvgPPM++;
-
-
-                                // Avoid divide by zero. Don't try to average without any samples
-                                if(CountAvgPPM > 0)
-                                {
-                                    AvgPPM = (SumForAvgPPM / (float)CountAvgPPM);
-                                }
-                                else
-                                {
-                                    AvgPPM = 0;
-                                }
-                            }
-                        }
 
                         break;
                     case 0x619:
@@ -510,6 +485,14 @@ namespace CANFinder
 
                         Odo = (float)(((255.0 * arrD3[i]) + arrD2[i]) / 1.609);             // Odo in kph converted to miles.
                         Trip = (float)((((255.0 * arrD6[i]) + arrD5[i]) / 10.0 ) / 1.609);  // trip in kph converted to miles.
+
+
+                        if(!FirstTripIn)
+                        {
+                            FirstTripIn = true;  // at least one in.
+                            StartTrip = Trip;
+                        }
+                        
 
                         // Only when moving... 
                         if(MphHiRes > 0)
@@ -552,6 +535,27 @@ namespace CANFinder
                         break;
                 }
 
+
+                // Always update on the first to get started...
+                if ((!FirstSocIn) && (Soc > 0))
+                {
+                    StartSoC = Soc;
+                    FirstSocIn = true;
+                }
+
+                if(FirstSocIn && FirstTripIn)
+                {
+                    if ((Trip - StartTrip) > 0)
+                    {
+                        DistSoc = (StartSoC - Soc) / (Trip - StartTrip);  // Don't bother averaging for ride. Just use straight calcs
+                    }
+                    else
+                    {
+                        DistSoc = 0;
+                    }
+                }
+                
+
                 // Volts and Amps provided in different CAN messages. So calculated outside of switch.
                 BatteryWatts = (BatteryVoltage * UnfiltAmps);
 
@@ -582,7 +586,7 @@ namespace CANFinder
                     CtrlTemp,
                     SideStand,
                     PercentPerMile,
-                    AvgPPM,
+                    DistSoc,
                     BatteryVoltage,
                     BatteryWatts,
                     WHPERMI,
