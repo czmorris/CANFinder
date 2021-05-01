@@ -403,6 +403,7 @@ namespace CANFinder
             float SumForAvgPPM = 0.0F;
             int CountAvgPPM = 0;
             float AvgPPM = 0.0F;
+            float WHPERPRMI = 0.0F;
 
             float BatteryVoltage = 0.0F;  // This is a test until proven...
             float BatteryWatts = 0.0F;    // Test until proven. May not include items powered by DC-DC.
@@ -423,8 +424,9 @@ namespace CANFinder
             float Test3bAD0D1 = 0.0F;
 
             float UnfiltAmps = 0.0F;
-
             float MphHiRes = 0.0F;
+            float RemainWHEst = 0.0F;
+            float RemainMIEst = 0.0F; // remaining mileage estimate.
 
             string line;
 
@@ -435,7 +437,7 @@ namespace CANFinder
 
             StreamWriter file = new StreamWriter(path);
 
-            line = "Seconds, SoC(%), FiltAmps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), BrakeSS (1/0), unused, SocPerMile, BATVolts, BATWatts, WH/MI, AVG WH/MI, AVG MPH LOG, Ready?, 0x101_D2, FullSoc?, 0x89_D0, UNFAMPS, 0x101_D0, HiResSpd(MPH) ";
+            line = "Seconds, SoC(%), FiltAmps, GearMode, Odometer(miles), Trip(miles), Speed(mph), Contr. Temp (C), BrakeSS (1/0), unused, SocPerMile, BATVolts, BATWatts, WH_PER_MI, AVG WH/MI, AVG MPH LOG, Ready?, 0x101_D2, FullSoc?, RemainMIEst, UNFAMPS, RemainWHEst, HiResSpd(MPH) ";
             file.WriteLine(line);  // Write the header line.
 
 
@@ -559,17 +561,25 @@ namespace CANFinder
                 // Volts and Amps provided in different CAN messages. So calculated outside of switch.
                 BatteryWatts = (BatteryVoltage * UnfiltAmps);
 
-                if((MphHiRes > 0) && (BatteryVoltage > 0))
+                if((AvgSpd > 0) && (BatteryVoltage > 0))
                 {
                     // For now using 74 rather than measured battery voltage...
                     // Settings in BMS are possibly.... 74v and 26A
-                    WHPERMI = (74.0F * (UnfiltAmps / MphHiRes));
+                    WHPERMI = (74.0F * (UnfiltAmps / (AvgSpd)));
 
                     // Sum and average (Only when speed is greater than 1)
                     WHPERMISUM += WHPERMI;
                     whmiavgcnt++;
                     AVGWHPERMI = (WHPERMISUM / whmiavgcnt);
 
+                    WHPERPRMI = (AVGWHPERMI / ((74.0F * 26.0F) * 0.8F)) * 100.0F;
+                }
+
+                RemainWHEst = (Soc * 15.392F);  // (74 * 26) * 0.8 = 1539.2wh
+
+                if(AVGWHPERMI > 0)
+                {
+                    RemainMIEst = (RemainWHEst / AVGWHPERMI);
                 }
 
 
@@ -589,20 +599,19 @@ namespace CANFinder
                     DistSoc,
                     BatteryVoltage,
                     BatteryWatts,
-                    WHPERMI,
+                    WHPERPRMI,
                     AVGWHPERMI,
                     AvgSpd,
                     TestSixSeven,  // Note: Is this the "Ready" Signal?
                     Test101D2,     
                     Test3bAD0D1,   // Note: Possibly SoC of entire battery?
-                    Test89D0,      // Note: Changed from 12 to 9 in a test log on rapid decel from 40+ mph. Happened once.
+                    RemainMIEst,      
                     UnfiltAmps,    // Note: Possibly unfiltered amps. (Instant amps)
-                    Test101D0,
+                    RemainWHEst,
                     MphHiRes);     // Mph (higher res option)
                 
 
                 file.WriteLine(line);  // Write this row
-
             }
 
             file.Close();
